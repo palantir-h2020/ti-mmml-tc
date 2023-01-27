@@ -1,0 +1,21 @@
+01/07-14:43:52.587754 [**] [119:7:1] [**] {TCP} 10.0.0.1:5927 -> 10.0.0.1:80
+01/07-14:43:52.587754 [**] [119:7:1] (http_inspect) IIS UNICODE CODEPOINT ENCODING [**] {TCP} 10.0.0.1:5927 -> 10.0.0.1:80
+01/07-14:43:52.694357 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:33948 -> 10.0.0.1:80
+01/07-14:43:53.767513 [**] [1:499:3] ICMP Large ICMP Packet [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 10.0.0.1 -> 10.0.0.1
+01/07-14:43:53.908532 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:56012 -> 10.0.0.1:80
+01/07-14:43:54.060109 [**] [1:499:3] ICMP Large ICMP Packet [**] [Classification: Potentially Bad Traffic] [Priority: 2] {ICMP} 10.0.0.1 -> 10.0.0.1
+01/07-14:43:54.160016 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:4294 -> 10.0.0.1:80
+01/07-14:43:54.395210 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:59877 -> 10.0.0.1:80
+01/07-14:43:54.968621 [**] [1:2307:1] WEB-PHP PayPal Storefront arbitrary command execution attempt [**] [Classification: Web Application Attack][Priority: 1] {TCP} 10.0.0.1:45657 -> 10.0.0.1:80
+01/07-14:43:55.098308 [**] [1:483:2] ICMP PING CyberKit 2.2 Windows [**] [Classification: Misc activity] [Priority: 3] {ICMP} 10.0.0.1 -> 10.0.0.1
+01/07-14:43:55.213158 [**] [1:1417:2] SNMP request udp [**] [Classification: Attempted Information Leak] [Priority: 2] {UDP} 10.0.0.1:52343 -> 10.0.0.1:161
+01/07-14:43:55.468081 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:38043 -> 10.0.0.1:80
+01/07-14:43:57.194970 [**] [1:2307:1] WEB-PHP PayPal Storefront arbitrary command execution attempt [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 10.0.0.1:1669 -> 10.0.0.1:80
+01/07-14:43:57.256372 [**] [1:2307:1] WEB-PHP PayPal Storefront arbitrary command execution attempt [**] [Classification: Web Application Attack] [Priority: 1] {TCP} 10.0.0.1:1670 -> 10.0.0.1:80
+01/07-14:43:57.679360 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:4339 -> 10.0.0.1:80
+01/07-14:43:57.716392 [**] [1:483:2] ICMP PING CyberKit 2.2 Windows [**] [Classification: Misc activity] [Priority: 3] {ICMP} 10.0.0.1 -> 10.0.0.1
+01/07-14:43:57.769957 [**] [119:14:1] (http_inspect) NON-RFC DEFINED CHAR [**] {TCP} 10.0.0.1:4340 -> 10.0.0.1:80
+01/07-14:43:58.722508 [**] [119:7:1] (http_inspect) IIS UNICODE CODEPOINT ENCODING [**] {TCP} 10.0.0.1:59898 -> 10.0.0.1:80
+01/07-14:43:58.799836 [**] [119:4:1] (http_inspect) BARE BYTE UNICODE ENCODING [**] {TCP} 10.0.0.1:45823 -> 10.0.0.1:80
+01/07/2016-14:43:52.587754 [**] [119:7:1] (http_inspect) IIS UNICODE CODEPOINT ENCODING [**] {TCP} 10.0.0.1:5927 -> 10.0.0.1:80
+01/07-14:43:52.587754 [**] [119:7:1] [**] {TCP} 10.0.0.1:5927 -> 10.0.0.1:80

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ids-parser
+spec:
+  restartPolicy: OnFailure
+  containers:
+    - name: palantir-ids-parser
+      image: 10.101.10.244:5000/palantir-ids-parser:1.0
+      imagePullPolicy: Always
+      env:
+        - name: KAFKA_BROKERS_CSV
+          value: "10.101.41.255:9092"
+        - name: KAFKA_TOPIC_IN_SNORT2
+          value: "sc.generated_log.snort"
+        - name: KAFKA_TOPIC_IN_SURICATA
+          value: "sc.generated_log.suricata"
+        - name: KAFKA_TOPIC_IN_WAZUH
+          value: "sc.generated_log.wazuh"
+        - name: KAFKA_TOPIC_OUT_NETFLOW
+          value: "ti.threat_findings_netflow"
+        - name: KAFKA_TOPIC_OUT_SYSLOG
+          value: "ti.threat_findings_syslog"
