@@ -130,16 +130,17 @@ def parsed_suricata_alert_to_TCAM_event(alert):
     else:
         classtype = None
 
-    if gid_sid_rev__to__classtype is not None:
-        if 'alert' in alert and 'gid' in alert['alert'] and 'signature_id' in alert['alert'] and 'rev' in alert['alert']:
-            gid = alert['alert']['gid']
-            sid = alert['alert']['signature_id']
-            rev = alert['alert']['rev']
-            gsr = '%s:%s:%s' % (gid,sid,rev)
-            if gsr in gid_sid_rev__to__classtype:
-                classtype__from__gid_sid_rev = gid_sid_rev__to__classtype[gsr]
-                print('classtype from alert:', classtype)
-                print('classtype__from__gid_sid_rev:', classtype__from__gid_sid_rev)
+    # Suricata already includes classtype. We can optionally also retrieve it from gid:sid:rev as double check.
+    # if gid_sid_rev__to__classtype is not None:
+    #     if 'alert' in alert and 'gid' in alert['alert'] and 'signature_id' in alert['alert'] and 'rev' in alert['alert']:
+    #         gid = alert['alert']['gid']
+    #         sid = alert['alert']['signature_id']
+    #         rev = alert['alert']['rev']
+    #         gsr = '%s:%s:%s' % (gid,sid,rev)
+    #         if gsr in gid_sid_rev__to__classtype:
+    #             classtype__from__gid_sid_rev = gid_sid_rev__to__classtype[gsr]
+    #             print('classtype from alert:', classtype)
+    #             print('classtype__from__gid_sid_rev:', classtype__from__gid_sid_rev)
 
     event['Threat_Label'],event['Threat_Category'] = snort_suricata_classtype__to__threat_label_and_category[classtype]
     event['Classification_Confidence'] = None   # not relevant for Suricata logs

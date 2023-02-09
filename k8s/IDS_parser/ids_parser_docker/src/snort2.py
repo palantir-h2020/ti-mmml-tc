@@ -150,6 +150,8 @@ def parsed_snort2_alert_to_TCAM_event(alert):
     threat_finding['Input_packets'] = None  # not available in Snort logs
     threat_finding['Input_bytes'] = None    # not available in Snort logs
 
+    # Snort 2 does not include the classtype label (Snort 3 does).
+    # We can retrieve it from the gid:sid:rev through our mapping read by parsing the ruleset.
     if 'gid' in alert and 'sid' in alert and 'rev' in alert:
         gsr = '%s:%s:%s' % (alert['gid'],alert['sid'],alert['rev'])
         if gsr in gid_sid_rev__to__classtype:
