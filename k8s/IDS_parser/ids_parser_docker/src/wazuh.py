@@ -31,6 +31,7 @@ def parsed_wazuh_alert_to_TCAM_event(alert):
         rule_id = int(alert['rule']['id'])
     else:
         rule_id = None
+    event['rule_id'] = rule_id
 
     if 'agent' in alert and 'id' in alert['agent']:
         # '000' is the ID of the Wazuh Manager

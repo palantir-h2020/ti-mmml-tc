@@ -113,6 +113,7 @@ def proc_msg(topic, value, producer):
     # Snort/Suricata alerts are always propagated to RR.
     # Wazuh alerts are propagated to RR based on a whitelist (whether the rule ID is known and relevant).
     if topic == KAFKA_TOPIC_IN_WAZUH and (TCAM_event['Threat_Label'],TCAM_event['Threat_Category'])==('UNKNOWN','UNKNOWN'):
+        logger.debug('Wazuh alert ignored (rule ID %d)' % (TCAM_event['rule_id']))
         return
 
     # dict to json string

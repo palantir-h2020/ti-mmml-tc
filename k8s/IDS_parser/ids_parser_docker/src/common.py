@@ -68,6 +68,10 @@ snort_suricata_classtype__to__threat_label_and_category['command-and-control'] =
 
 # Wazuh
 wazuh_rule_id__to__threat_label_and_category = defaultdict( lambda: ('UNKNOWN','UNKNOWN') )
+wazuh_rule_id__to__threat_label_and_category[100029] = ('ransomware', 'ransomware')
+wazuh_rule_id__to__threat_label_and_category[100015] = ('ransomware', 'ransomware')
+wazuh_rule_id__to__threat_label_and_category[100030] = ('ransomware', 'ransomware')
+wazuh_rule_id__to__threat_label_and_category[100032] = ('ransomware', 'ransomware')
 # TODO!
 
 def parse_filebeat_msg(msg):
