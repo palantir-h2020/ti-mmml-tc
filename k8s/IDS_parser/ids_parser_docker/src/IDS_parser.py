@@ -116,15 +116,13 @@ def proc_msg(topic, value, producer):
         logger.debug('Wazuh alert ignored (rule ID %d)' % (TCAM_event['rule_id']))
         return
 
-    # dict to json string
-    msg = json.dumps(TCAM_event)
     if topic in [KAFKA_TOPIC_IN_SNORT2, KAFKA_TOPIC_IN_SURICATA]:
         KAFKA_TOPIC_OUT = KAFKA_TOPIC_OUT_NETFLOW
     elif topic == KAFKA_TOPIC_IN_WAZUH:
         KAFKA_TOPIC_OUT = KAFKA_TOPIC_OUT_SYSLOG
     else:
         return
-    producer.send(KAFKA_TOPIC_OUT, key='IDS-parser-msg-%d' % msg_out_cnt, value=msg)
+    producer.send(KAFKA_TOPIC_OUT, key='IDS-parser-msg-%d' % msg_out_cnt, value=TCAM_event)
     msg_out_cnt += 1
 
 
