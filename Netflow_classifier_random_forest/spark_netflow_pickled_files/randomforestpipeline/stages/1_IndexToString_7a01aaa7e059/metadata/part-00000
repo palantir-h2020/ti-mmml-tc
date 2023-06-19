@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.IndexToString","timestamp":1645447077322,"sparkVersion":"3.0.0","uid":"IndexToString_7a01aaa7e059","paramMap":{"outputCol":"predictedLabel","labels":["Benign","Cridex","Virut","Geodo","Neris","Zeus","Miuref","Tinba","Shifu","Htbot","Nsis-ay"],"inputCol":"prediction"},"defaultParamMap":{"outputCol":"IndexToString_7a01aaa7e059__output"}}

@@ -1,0 +1,124 @@
+import argparse
+from sklearn.feature_extraction.text import TfidfVectorizer
+import numpy as np
+import matplotlib.pyplot as plt
+import time
+from operator import truediv
+from sklearn.preprocessing import StandardScaler
+from pyspark.sql import functions as F
+from pyspark.ml.linalg import Vectors, VectorUDT
+import math
+import traceback
+from pyspark.ml.functions import vector_to_array
+from kafka import KafkaProducer
+from pyspark.sql.functions import array_max,monotonically_increasing_id,split,expr,flatten
+from pyspark.ml import Pipeline,PipelineModel
+from pyspark.sql.types import *
+from datetime import datetime
+import os.path
+from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+from pyspark.mllib.evaluation import MulticlassMetrics
+from time import mktime
+from sklearn.ensemble import IsolationForest
+from pyspark_dist_explore import hist
+import matplotlib.pyplot as plt
+import pickle
+from pyspark.sql.window import Window
+from pyspark.ml.feature import StandardScaler,VectorAssembler
+import collections
+import warnings
+from pyspark.ml.feature import StringIndexer,VectorIndexer,IndexToString,StringIndexerModel
+import ipaddress
+from pyspark.ml.classification import RandomForestClassifier
+import json
+from sklearn.preprocessing import LabelEncoder
+warnings.filterwarnings("ignore")
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
+
+spark = SparkSession.builder.getOrCreate()
+spark.sparkContext.setLogLevel('ERROR')
+	
+producer = KafkaProducer(bootstrap_servers='10.101.41.255:9092') 
+def runPipeline(df):
+	global producer
+	print('Parsing input stream')
+	#df=batch_df
+	if df.count()==0:
+		return
+	print('shape',df.count())
+	df=df.filter(df.IFORESTFEATUREVECTOR.isNotNull())
+	print('shape',df.count())
+	df.select("MIDASNAME","MIDASSCORE","MIDASISOUTLIER","GANOMALYNAME","GANOMALYFEATUREVECTOR","GANOMALYSCORE","GANOMALYISOUTLIER","IFORESTNAME","IFORESTFEATUREVECTOR","IFORESTSCORE","IFORESTISOUTLIER","AENAME","AEFEATUREVECTOR","AESCORE","AEISOUTLIER").show(5)
+	
+	df=df.filter((df.IFORESTFEATUREVECTOR != "\"[]\"") | (df.AEFEATUREVECTOR != "\"[]\""))
+	outlierModels=["IFOREST","AE"]
+	arraytovector = F.udf(lambda vs: Vectors.dense(vs), VectorUDT())
+	for outlierModel in outlierModels:
+		try:
+			df=df.filter(col(outlierModel+"FEATUREVECTOR")!="\"[]\"")
+			if df.count()==0:
+				continue
+			df=df.withColumn("features", split(expr("rtrim(']\"', ltrim('\"[', "+outlierModel+"FEATUREVECTOR))"), ",")).withColumn("features", expr("""transform(features, x -> split(rtrim(']\"', ltrim('\"[', x)), ","))""")).withColumn("features", flatten(col("features")).cast("array<float>")).withColumn("features", arraytovector(col("features")))
+			df.select("features").show(5)
+			#if df.features.isNull():
+				#continue
+			#print(df.count())
+			print('Running Inference')
+			model=PipelineModel.load('spark_netflow_pickled_files/randomforestpipeline')
+			predictions = model.transform(df)
+			print(df.columns)
+			print(predictions.columns)
+			predictions=predictions.withColumn("probability",array_max(vector_to_array("probability")))
+			predictions=predictions.select('ts', 'te', 'td', 'sa', 'da', 'sp', 'dp', 'pr', 'flg', 'stos', 'ipkt','ibyt',"predictedLabel","probability",outlierModel+"SCORE")
+			predictions.show(5)
+			predictions=predictions.toPandas()
+			idxes=predictions.index.tolist()
+			for i,idx in enumerate(idxes):
+				dfentry=predictions.iloc[idx]
+				predlabel="Botnet" if dfentry.predictedLabel!='Benign' else 'Benign'
+				jsonObj={"Threat_Finding":{"Time_Start":dfentry.ts,"Time_End":dfentry.te,"Time_Duration":dfentry.td,"Source_Address":dfentry.sa,"Destination_Address":dfentry.da,"Source_Port":int(dfentry.sp),"Destination_Port":int(dfentry.dp),"Protocol":dfentry.pr,"Flag":dfentry.flg,"Soure_tos":int(float(dfentry.stos)),"Input_packets":int(dfentry.ipkt),"Input_bytes":int(dfentry.ibyt)},"Threat_Label":dfentry.predictedLabel,"Threat_Category":predlabel,"Classification_Confidence":float(dfentry.probability),"Outlier_Score":float(dfentry[outlierModel+'SCORE'])}
+				print(json.dumps(jsonObj).encode('utf-8'))
+				#producer.send('ti.threat_findings_netflow', json.dumps(jsonObj).encode('utf-8'))
+		except:
+			print(traceback.format_exc())
+	
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description='Process some integers.')
+	parser.add_argument('--cutoff', type=float, help='Cutoff point.',default=0.5)
+	args = parser.parse_args()
+	
+	offset="0"
+	N=0
+	while True:
+		df = spark.read.format("kafka").option("kafka.bootstrap.servers", "10.101.41.255:9092").option("subscribe", "netflow-ad-out").option("failOnDataLoss","false")
+		if os.path.exists("kafkaOffset.txt"):
+			f=open("kafkaOffset.txt")
+			offset=f.readlines()[0].strip()
+		else:
+			offset="0"
+		df=df.option("startingOffsets", """{"netflow-ad-out":{"0":"""+offset+"""}}""").load()
+		newoffset=df.select(col("offset")).alias("offset").select("offset.*")
+		newoffset=newoffset.agg(F.max("offset")).collect()[0]['max(offset)']
+		print(df.count())
+		if newoffset==int(offset):
+			continue
+		with open("kafkaOffset.txt","w") as of:
+			if int(newoffset)-N<0:
+				of.write("0")
+			else:
+				of.write(str(int(newoffset)-N))
+		df=df.select(col("value").cast("string")).alias("csv").select("csv.*")
+		#print(df.select('value').collect())
+		cols=["ts","te","td","sa","da","sp","dp","pr","flg","fwd","stos","ipkt","ibyt","opkt","obyt","in","out","sas","das","smk","dmk","dtos","dir","nh","nhb","svln","dvln","ismc","odmc","idmc","osmc","mpls1","mpls2","mpls3","mpls4","mpls5","mpls6","mpls7","mpls8","mpls9","mpls10","cl","sl","al","ra","eng","exid","tr","tpkt","tbyt","cp","prtcp","prudp","pricmp","prigmp","prother","flga","flgs","flgf","flgr","flgp","flgu","MIDASNAME","MIDASFEATUREVECTOR","MIDASSCORE","MIDASISOUTLIER","GANOMALYNAME","GANOMALYFEATUREVECTOR","GANOMALYSCORE","GANOMALYISOUTLIER","IFORESTNAME","IFORESTFEATUREVECTOR","IFORESTSCORE","IFORESTISOUTLIER","AENAME","AEFEATUREVECTOR","AESCORE","AEISOUTLIER"]
+		colargs=[]
+		for i,column in enumerate(cols):
+			colargs.append("split(value,',(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)')["+str(i)+"] as "+cols[i])
+		df=df.selectExpr(*colargs)
+		df=df.select('ts', 'te', 'td', 'sa', 'da', 'sp', 'dp', 'pr', 'flg', 'stos', 'ipkt','ibyt',"MIDASNAME","MIDASSCORE","MIDASISOUTLIER","GANOMALYNAME","GANOMALYFEATUREVECTOR","GANOMALYSCORE","GANOMALYISOUTLIER","IFORESTNAME","IFORESTFEATUREVECTOR","IFORESTSCORE","IFORESTISOUTLIER","AENAME","AEFEATUREVECTOR","AESCORE","AEISOUTLIER")
+		df=df.dropna()
+		#df=df.limit(1000)
+		runPipeline(df)
+
+
