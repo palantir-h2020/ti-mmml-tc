@@ -62,6 +62,8 @@ spec:
               value: "ti.threat_findings_netflow"
             - name: KAFKA_TOPIC_OUT_SYSLOG
               value: "ti.threat_findings_syslog"
+            - name: KAFKA_TOPIC_IN_CDS
+              value: "netflow-crypto-prediction"
             - name: VERBOSITY
               value: "DEBUG"
             - name: TENANT_ID

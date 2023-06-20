@@ -121,7 +121,9 @@ def runPipeline(df):
 def crypto():
 	print("CRYPTO THREAD STARTED========")
 	consumer = KafkaConsumer(bootstrap_servers=['10.101.41.255:9092'])
-	consumer.assign([TopicPartition('netflow-crypto-prediction',int(PARTITION))])
+	crypto_input_topic = os.getenv('KAFKA_TOPIC_IN_CDS', 'netflow-crypto-prediction')
+	consumer.assign([TopicPartition(crypto_input_topic,int(PARTITION))])
+	#consumer.assign([TopicPartition('netflow-crypto-prediction',int(PARTITION))])
 	for message in consumer:
 		print('Crypto message',message)
 		message=message.value.decode("utf-8").split(',')
