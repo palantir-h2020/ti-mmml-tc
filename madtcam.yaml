@@ -44,7 +44,7 @@ spec:
               value: "10.101.41.255:9092"
         - name: rforest
           imagePullPolicy: Always
-          image: elaforestis/palantir
+          image: dgiagkos/palantir
           ports:
             - containerPort: 80
           env:
