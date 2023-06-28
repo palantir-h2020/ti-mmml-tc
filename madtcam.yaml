@@ -64,6 +64,8 @@ spec:
               value: "ti.threat_findings_syslog"
             - name: KAFKA_TOPIC_IN_CDS
               value: "netflow-crypto-prediction"
+            - name: MULTITENANCY_SERVICE_URL
+              value: "http://tenant-api-service.ti-dcp:6000/api/partition/"
             - name: VERBOSITY
               value: "DEBUG"
             - name: TENANT_ID

@@ -146,7 +146,9 @@ def crypto():
 	
 if __name__ == "__main__":
 	global PARTITION
-	PARTITION=requests.get('http://tenant-api-service.ti-dcp:6000/api/partition/'+str(TENANT_ID)).json()['partition']	
+	multitenancy_service_url = os.getenv('MULTITENANCY_SERVICE_URL', 'http://tenant-api-service.ti-dcp:6000/api/partition/')
+	PARTITION=requests.get(multitenancy_service_url+str(TENANT_ID)).json()['partition']	
+	#PARTITION=requests.get('http://tenant-api-service.ti-dcp:6000/api/partition/'+str(TENANT_ID)).json()['partition']	
 	ids_thread=threading.Thread(target=IDS_parser.main)
 	crypto_thread=threading.Thread(target=crypto)
 	ids_thread.start()
